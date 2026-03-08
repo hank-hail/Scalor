@@ -33,16 +33,16 @@ Adjust the require path to match your project layout.
 ```luau
 local Scalor = require(path.to.Scalor)
 
-local a = Scalor.new(1.25, 6)   -- 1.25e6 (Scalor Object)
-local b = Scalor.new(5, 3)      -- 5e3 (Scalor Object)
+local a = Scalor.new(1.25, 6)   -- 1.25e6
+local b = Scalor.new(5, 3)      -- 5e3
 
-print(a:Scientific())           -- 1.25e6 (String)
-print(a:Short())                -- 1.25M (String)
+print(a:Scientific())           -- 1.25e6
+print(a:Short())                -- 1.25M
 
-print((a + b):Scientific())     -- new Scalor Object
+print((a + b):Scientific())     -- new Scalor
 
 a:add("250K")                   -- mutates a
-print(a:Short())                -- 1.50M (String)
+print(a:Short())                -- 1.50M
 ```
 
 ## Accepted Inputs
@@ -87,7 +87,8 @@ These change the current object and return `self`.
 - `value:mul(input)`
 - `value:div(input)`
 - `value:mod(input)`
-- `value:exp(input)`
+- `value:pow(input)`
+- `value:root(degree)`
 
 Example:
 
@@ -97,6 +98,7 @@ local value = Scalor.new(1.5, 6)
 value:add("250K")
 value:mul(3)
 value:div("2")
+value:root(3)
 ```
 
 ## Comparison Helper
@@ -132,7 +134,7 @@ print(value:Compare("2K") < 0)
 
 ## Operators
 
-These create and return a new `Scalor`.
+These operators are available on `Scalor`.
 
 - `a + b`
 - `a - b`
@@ -145,6 +147,7 @@ These create and return a new `Scalor`.
 - `a == b`
 - `a < b`
 - `a <= b`
+- `#a`
 
 `tostring(a)` uses scientific formatting.
 
@@ -156,6 +159,7 @@ Comparison operators coerce inputs through the same parser used by the math meth
 - a short string like `"1.25M"`
 
 Concatenation renders any `Scalor` operand with `Scientific()` first.
+`#a` returns the base-10 magnitude, which is the normalized exponent for nonzero values.
 
 Examples:
 
@@ -163,7 +167,12 @@ Examples:
 print(Scalor.new(1.25, 6) .. " total") -- 1.25e6 total
 print(Scalor.new(5, 3) < "1.25M")      -- true
 print(Scalor.new(5, 3) <= 5000)        -- true
+print(Scalor.new(9, 0) ^ 0.5)          -- 3.00e0
+print(#Scalor.new(9.876, 9))           -- 9
 ```
+
+`value:pow(input)` still requires an integer exponent.
+Use operator `^` for fractional powers and `value:root(degree)` for explicit nth roots.
 
 ## Formatting
 
@@ -219,11 +228,12 @@ If one value is far smaller than the other, `Scalor` ignores the smaller term on
 
 ### `Config.MAX_SAFE_INTEGER`
 
-Largest safe integer used when validating exponents for `^` / `:exp(...)`.
+Largest safe integer used when validating integer exponents and root degrees.
 
 ## Limits
 
-- `^` and `:exp(...)` only support integer exponents
+- `:pow(...)` only supports integer exponents
+- `^` supports fractional exponents for compatible real-valued inputs
 - `%` and `:mod(...)` only work when both values fit in a regular Luau number
 - Luau does not dispatch `==` against raw `number` or `string` operands, so mixed-type equality like `scalor == "1e3"` will not use `__eq`; use `value:Compare(input) == 0` instead
 - `Scalor` still uses Luau `number` internally, so it is not arbitrary-precision math
