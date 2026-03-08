@@ -18,7 +18,7 @@ export type Scalor = typeof(setmetatable({} :: {
     pow: (self: Scalor, value: ScalorInput) -> Scalor,
     root: (self: Scalor, degree: ScalorInput) -> Scalor,
 
-    Compare: (self: Scalor, value: ScalorInput) -> number,
+    Equals: (self: Scalor, value: ScalorInput) -> boolean,
     Scientific: (self: Scalor) -> string,
     Short: (self: Scalor) -> string,
 
@@ -591,11 +591,11 @@ function Scalor.root(self: Scalor, degree: ScalorInput): Scalor
 	return self
 end
 
-function Scalor.Compare(self: Scalor, value: ScalorInput): number
+function Scalor.Equals(self: Scalor, value: ScalorInput): boolean
 	return compare(
-		self, 
+		self,
 		value
-	)
+	) == 0
 end
 
 function Scalor.Scientific(self: Scalor): string
