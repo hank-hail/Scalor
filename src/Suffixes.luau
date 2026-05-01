@@ -1,22 +1,22 @@
 --!strict
-local Config = require("./Config")
+const Config = require("./Config")
 
-local table_create = table.create
-local table_concat = table.concat
+const table_create = table.create
+const table_concat = table.concat
 
-local Suffixes = {}
+const Suffixes = {}
 
 local MAX_CONFIGURED_SUFFIX_POWER = Config.MAX_SUFFIX_POWER
-local MAX_CACHED_GROUP = 1000
+const MAX_CACHED_GROUP = 1000
 
-local SUFFIXES = table_create(MAX_CONFIGURED_SUFFIX_POWER)
-local SUFFIX_TO_POWER = {[""] = 1}
+const SUFFIXES = table_create(MAX_CONFIGURED_SUFFIX_POWER)
+const SUFFIX_TO_POWER = {[""] = 1}
 
 SUFFIXES[1] = ""
 
-local MAX_DEFINED_SUFFIX_POWER = 1
+const MAX_DEFINED_SUFFIX_POWER = 1
 
-local STANDALONE_GROUP_SUFFIXES = {
+const STANDALONE_GROUP_SUFFIXES = {
 	"K",
 	"M",
 	"B",
@@ -29,7 +29,7 @@ local STANDALONE_GROUP_SUFFIXES = {
 	"No",
 }
 
-local GROUP_PREFIXES = {
+const GROUP_PREFIXES = {
 	"",
 	"U",
 	"D",
@@ -42,7 +42,7 @@ local GROUP_PREFIXES = {
 	"No",
 }
 
-local TEN_GROUP_ROOTS = {
+const TEN_GROUP_ROOTS = {
 	"De",
 	"Vt",
 	"Tg",
@@ -54,7 +54,7 @@ local TEN_GROUP_ROOTS = {
 	"Ng",
 }
 
-local HUNDRED_GROUP_ROOTS = {
+const HUNDRED_GROUP_ROOTS = {
 	"Ce",
 	"Du",
 	"Tr",
@@ -66,7 +66,7 @@ local HUNDRED_GROUP_ROOTS = {
 	"Ni",
 }
 
-local HIGHER_TIER_ROOTS = {
+const HIGHER_TIER_ROOTS = {
 	"Mi",
 	"Mc",
 	"Na",
@@ -171,8 +171,8 @@ local HIGHER_TIER_ROOTS = {
 	"MeHect",
 }
 
-local PREFIX_CHUNKS = table_create(MAX_CACHED_GROUP) :: {string}
-local STANDALONE_CHUNKS = table_create(MAX_CACHED_GROUP) :: {string}
+const PREFIX_CHUNKS = table_create(MAX_CACHED_GROUP) :: {string}
+const STANDALONE_CHUNKS = table_create(MAX_CACHED_GROUP) :: {string}
 
 PREFIX_CHUNKS[1] = ""
 STANDALONE_CHUNKS[1] = STANDALONE_GROUP_SUFFIXES[1]
@@ -183,22 +183,22 @@ for group = 2, 10 do
 end
 
 for group = 11, 100 do
-	local offset = group - 11
-	local suffix = GROUP_PREFIXES[(offset % 10) + 1] .. TEN_GROUP_ROOTS[offset // 10 + 1]
+	const offset = group - 11
+	const suffix = GROUP_PREFIXES[(offset % 10) + 1] .. TEN_GROUP_ROOTS[offset // 10 + 1]
 
 	PREFIX_CHUNKS[group] = suffix
 	STANDALONE_CHUNKS[group] = suffix
 end
 
 for group = 101, MAX_CACHED_GROUP do
-	local offset = group - 101
-	local suffix = PREFIX_CHUNKS[(offset % 100) + 1] .. HUNDRED_GROUP_ROOTS[offset // 100 + 1]
+	const offset = group - 101
+	const suffix = PREFIX_CHUNKS[(offset % 100) + 1] .. HUNDRED_GROUP_ROOTS[offset // 100 + 1]
 
 	PREFIX_CHUNKS[group] = suffix
 	STANDALONE_CHUNKS[group] = suffix
 end
 
-local function build(group: number): string?
+const function build(group: number): string?
 	if group <= 0 then
 		return ""
 	end
@@ -207,7 +207,7 @@ local function build(group: number): string?
 		return STANDALONE_CHUNKS[group]
 	end
 
-	local chunks = table_create(4) :: {number?}
+	const chunks = table_create(4) :: {number?}
 	local chunk_count = 0
 	local remaining = group
 
@@ -217,13 +217,13 @@ local function build(group: number): string?
 		remaining = remaining // 1000
 	end
 
-	local parts = table_create(chunk_count)
+	const parts = table_create(chunk_count)
 	local part_count = 0
 
 	for position = chunk_count, 2, -1 do
-		local chunk = chunks[position]
+		const chunk = chunks[position]
 		if chunk and chunk > 0 then
-			local tier_root = HIGHER_TIER_ROOTS[position - 1]
+			const tier_root = HIGHER_TIER_ROOTS[position - 1]
 			if tier_root == nil then
 				return nil
 			end
@@ -233,7 +233,7 @@ local function build(group: number): string?
 		end
 	end
 
-	local low_chunk = chunks[1] or 0
+	const low_chunk = chunks[1] or 0
 	if low_chunk > 0 then
 		if part_count == 0 then
 			part_count += 1
@@ -249,7 +249,7 @@ end
 
 if MAX_CONFIGURED_SUFFIX_POWER <= MAX_CACHED_GROUP + 1 then
 	for power = 2, MAX_CONFIGURED_SUFFIX_POWER do
-		local suffix = STANDALONE_CHUNKS[power - 1]
+		const suffix = STANDALONE_CHUNKS[power - 1]
 		SUFFIXES[power] = suffix
 		SUFFIX_TO_POWER[suffix] = power
 	end
@@ -257,7 +257,7 @@ if MAX_CONFIGURED_SUFFIX_POWER <= MAX_CACHED_GROUP + 1 then
 	MAX_DEFINED_SUFFIX_POWER = MAX_CONFIGURED_SUFFIX_POWER
 else
 	for power = 2, MAX_CONFIGURED_SUFFIX_POWER do
-		local suffix = build(power - 1)
+		const suffix = build(power - 1)
 		if suffix == nil then
 			break
 		end
